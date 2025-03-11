@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:uno",
+    "programmer": "avrisp",
+    "output": ".arduino/output",
+    "sketch": "Send_data_esp32_move_servo/Send_data_esp32_move_servo.ino"
+}
