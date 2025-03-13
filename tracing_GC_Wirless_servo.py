@@ -5,16 +5,16 @@ import requests
 import socket
 
 # ESP32-CAM video stream URL
-esp32_cam_url = "http://192.168.3.14/capture"  # Replace with the correct URL
+esp32_cam_url = "http://192.168.142.56/capture"  # Replace with the correct URL
 
 # TCP Server Configuration for ESP32-CAM
-ESP32_IP = "192.168.3.14"  # Replace with your ESP32-CAM IP address
+ESP32_IP = "192.168.142.56"  # Replace with your ESP32-CAM IP address
 ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
 
 # Servo control parameters
 pan_angle = 90  # Initial pan angle (X-axis)
 tilt_angle = 90  # Initial tilt angle (Y-axis)
-servo_speed = 3  # Speed of servo movement (adjust as needed)
+servo_speed = 1  # Speed of servo movement (adjust as needed)
 
 # Define tilt servo limits (adjust these values as needed)
 TILT_MIN_ANGLE = 60  # Minimum angle for tilt (down)
@@ -44,7 +44,7 @@ def fetch_esp32_cam_frame(url):
     return None
 
 # Function to send servo angles via TCP
-def send_servo_angles(pan_angle, tilt_angle):
+def send_servo_angles(pan_angle, tilt_angle, detected):
     try:
         # Create a TCP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -53,7 +53,7 @@ def send_servo_angles(pan_angle, tilt_angle):
         print("Connection successful!")  # Debug: Confirm connection
 
         # Send the servo angles (format: "pan_angle,tilt_angle\n")
-        data = f"{pan_angle},{tilt_angle}\n"
+        data = f"{pan_angle},{tilt_angle},{int(detected)}\n"
         print(f"Sending: {data.strip()}")  # Debug: Print the data being sent
         sock.send(data.encode())
 
@@ -113,6 +113,7 @@ def main():
         cv2.line(frame, (0, center_y), (cols, center_y), (0, 0, 255), 2)
 
         # Process the largest contour (if any)
+        detected = False
         if contours:
             (x, y, w, h) = cv2.boundingRect(contours[0])
 
@@ -148,6 +149,9 @@ def main():
             # Constrain servo angles to valid range
             pan_angle = constrain_angle(pan_angle, 0, 180)  # Pan servo range (0 to 180)
             tilt_angle = constrain_angle(tilt_angle, TILT_MIN_ANGLE, TILT_MAX_ANGLE)  # Tilt servo range
+            
+            # Set detection status to true
+            detected = True
 
             # Send servo angles via TCP
             send_servo_angles(pan_angle, tilt_angle)
