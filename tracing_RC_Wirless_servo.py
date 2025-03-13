@@ -116,6 +116,7 @@ def main():
         rows, cols, _ = frame.shape
         center_x = int(cols / 2)
         center_y = int(rows / 2)
+        
 
         # Draw a crosshair at the center of the frame (in red)
         cv2.line(frame, (center_x, 0), (center_x, rows), (0, 0, 255), 2)
@@ -162,7 +163,7 @@ def main():
             # Set detection status to true
             detected = True
 
-        # Send servo angles and detection status via TCP
+        # Send servo angles and detection status via T.C.P
         send_servo_angles(pan_angle, tilt_angle, detected)
 
         # Display the frame and mask
