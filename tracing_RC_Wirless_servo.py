@@ -45,6 +45,8 @@ def fetch_esp32_cam_frame(url):
         print(f"Error fetching frame: {e}")
     return None
 
+
+
 # Function to send servo angles via TCP
 def send_servo_angles(pan_angle, tilt_angle, detected):
     try:
