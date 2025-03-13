@@ -24,6 +24,8 @@ TILT_MAX_ANGLE = 100  # Maximum angle for tilt (up)
 def constrain_angle(angle, min_angle, max_angle):
     return max(min_angle, min(max_angle, angle))
 
+
+
 # Function to fetch and decode the ESP32-CAM stream
 def fetch_esp32_cam_frame(url):
     try:
