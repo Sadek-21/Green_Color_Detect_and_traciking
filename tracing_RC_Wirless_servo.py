@@ -5,22 +5,22 @@ import requests
 import socket
 
 # ESP32-CAM video stream URL
-esp32_cam_url = "http://192.168.218.56/capture"  # Replace with the correct URL
+esp32_cam_url = "http://192.168.158.56/capture"  # Replace with the correct URL
 
-#http://192.168.3.14/
+#http://192.168.3.14/   http://192.168.158.56    192.168.218.56
 
-# TCP Server Configuration for ESP32-CAM
-ESP32_IP = "192.168.218.56"  # Replace with your ESP32-CAM IP address
+# TCP Server Configuration for ESP32-CAM -fjl
+ESP32_IP = "192.168.158.56"  # Replace with your ESP32-CAM IP address
 ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
 
 # Servo control parameters
 pan_angle = 90  # Initial pan angle (X-axis)
-tilt_angle = 90  # Initial tilt angle (Y-axis)
-servo_speed = 1  # Speed of servo movement (adjust as needed)
+tilt_angle = 40  # Initial tilt angle (Y-axis)
+servo_speed = 2  # Speed of servo movement (adjust as needed)
 
 # Define tilt servo limits (adjust these values as needed)
-TILT_MIN_ANGLE = 40  # Minimum angle for tilt (down)
-TILT_MAX_ANGLE = 70  # Maximum angle for tilt(up)
+TILT_MIN_ANGLE = 20  # Minimum angle for tilt (down)
+TILT_MAX_ANGLE = 80  # Maximum angle for tilt(up)
 
 # Function to constrain servo angles to valid range
 def constrain_angle(angle, min_angle, max_angle):
@@ -148,9 +148,9 @@ def main():
 
             # Pan servo (left/right)
             if error_x > 30:  # Object is to the right
-                pan_angle -= servo_speed  # Move right
+                pan_angle += servo_speed  # Move right
             elif error_x < -30:  # Object is to the left
-                pan_angle += servo_speed  # Move left
+                pan_angle -= servo_speed  # Move left
 
             # Tilt servo (up/down)
             if error_y > 30:  # Object is below
