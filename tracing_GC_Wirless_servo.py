@@ -7,6 +7,8 @@ import socket
 # ESP32-CAM video stream URL
 esp32_cam_url = "http://192.168.142.56/capture"  # Replace with the correct URL
 
+#http://192.168.3.14/   http://192.168.158.56    192.168.218.56
+
 # TCP Server Configuration for ESP32-CAM
 ESP32_IP = "192.168.142.56"  # Replace with your ESP32-CAM IP address
 ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
