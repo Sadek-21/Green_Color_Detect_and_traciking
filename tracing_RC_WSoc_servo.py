@@ -2,16 +2,13 @@ import cv2
 import numpy as np
 import time
 import requests
-import socket
+import websocket
 
 # ESP32-CAM video stream URL
 esp32_cam_url = "http://192.168.3.14/capture"  # Replace with the correct URL
 
-#http://192.168.3.14/   http://192.168.158.56    192.168.218.56
-
-# TCP Server Configuration for ESP32-CAM
-ESP32_IP = "192.168.3.14"  # Replace with your ESP32-CAM IP address
-ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
+# WebSocket Configuration for ESP32-CAM
+ESP32_WS_URL = "ws://192.168.3.14/ws"  # WebSocket URL
 
 # Servo control parameters
 pan_angle = 90  # Initial pan angle (X-axis)
@@ -45,32 +42,32 @@ def fetch_esp32_cam_frame(url):
         print(f"Error fetching frame: {e}")
     return None
 
-# Function to send servo angles via TCP
-def send_servo_angles(pan_angle, tilt_angle, detected):
+# Function to send servo angles via WebSocket
+def send_servo_angles(ws, pan_angle, tilt_angle, detected):
     try:
-        # Create a TCP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print(f"Connecting to {ESP32_IP}:{ESP32_PORT}...")  # Debug: Print connection attempt
-        sock.connect((ESP32_IP, ESP32_PORT))
-        print("Connection successful!")  # Debug: Confirm connection
-
-        # Send the servo angles (format: "pan_angle,tilt_angle\n")
-        data = f"{pan_angle},{tilt_angle},{int(detected)}\n"
-        print(f"Sending: {data.strip()}")  # Debug: Print the data being sent
-        sock.send(data.encode())
+        # Format the data as a string
+        data = f"{pan_angle},{tilt_angle},{int(detected)}"
+        print(f"Sending: {data}")  # Debug: Print the data being sent
+        ws.send(data)
 
         # Wait for a response from the ESP32-CAM
-        response = sock.recv(1024).decode().strip()
+        response = ws.recv()
         print(f"Response: {response}")  # Debug: Print the response
-
-        # Close the socket
-        sock.close()
     except Exception as e:
         print(f"Error sending servo angles: {e}")
 
 # Main function for object detection and servo control
 def main():
     global pan_angle, tilt_angle  # Declare pan_angle and tilt_angle as global variables
+
+    # Connect to WebSocket server
+    ws = websocket.WebSocket()
+    try:
+        ws.connect(ESP32_WS_URL)
+        print("WebSocket connection successful!")
+    except Exception as e:
+        print(f"Error connecting to WebSocket: {e}")
+        return
 
     while True:
         # Fetch frame from ESP32-CAM stream
@@ -155,8 +152,8 @@ def main():
             # Set detection status to true
             detected = True
 
-            # Send servo angles via TCP
-            send_servo_angles(pan_angle, tilt_angle)
+            # Send servo angles via WebSocket
+            send_servo_angles(ws, pan_angle, tilt_angle, detected)
 
         # Display the frame and mask
         cv2.imshow("Frame", frame)
@@ -169,6 +166,9 @@ def main():
         key = cv2.waitKey(1)
         if key == 27:
             break
+
+    # Close WebSocket connection
+    ws.close()
 
 if __name__ == "__main__":
     main()
