@@ -5,12 +5,12 @@ import requests
 import socket
 
 # ESP32-CAM video stream URL
-esp32_cam_url = "http://192.168.3.14/capture"  # Replace with the correct URL
+esp32_cam_url = "http://192.168.24.56/capture"  # Replace with the correct URL
 
-#http://192.168.3.14/   http://192.168.158.56    192.168.218.56
+#http://192.168.3.14/   http://192.168.158.56    192.168.218.56  http://192.168.24.56
 
 # TCP Server Configuration for ESP32-CAM -fjl
-ESP32_IP = "192.168.3.14"  # Replace with your ESP32-CAM IP address
+ESP32_IP = "192.168.24.56"  # Replace with your ESP32-CAM IP address
 ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
 
 # Servo control parameters
@@ -72,6 +72,7 @@ def send_servo_angles(pan_angle, tilt_angle, detected):
     except Exception as e:
         print(f"Error sending servo angles: {e}")
 
+#we
 # Main function for object detection and servo control
 def main():
     global pan_angle, tilt_angle  # Declare pan_angle and tilt_angle as global variables
