@@ -153,7 +153,7 @@ def main():
             elif error_x < -30:  # Object is to the left
                 pan_angle -= servo_speed  # Move left
 
-            # Tilt servo (up/down)
+            # Tilt servo (up/down
             if error_y > 30:  # Object is below
                 tilt_angle += servo_speed  # Move down
             elif error_y < -30:  # Object is above
