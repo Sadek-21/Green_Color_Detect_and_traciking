@@ -2,16 +2,14 @@ import cv2
 import numpy as np
 import time
 import requests
-import socket
+import serial
 
 # ESP32-CAM video stream URL
 esp32_cam_url = "http://192.168.3.14/capture"  # Replace with the correct URL
 
-#http://192.168.3.14/   http://192.168.158.56    192.168.218.56  http://192.168.24.56
-
-# TCP Server Configuration for ESP32-CAM -fjl
-ESP32_IP = "192.168.3.14"  # Replace with your ESP32-CAM IP address
-ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
+# COM Port Configuration
+COM_PORT = 'COM6'  # Replace with your COM port
+BAUD_RATE = 9600   # Match the baud rate with your ESP32-CAM code
 
 # Servo control parameters
 pan_angle = 90  # Initial pan angle (X-axis)
@@ -25,8 +23,6 @@ TILT_MAX_ANGLE = 80  # Maximum angle for tilt(up)
 # Function to constrain servo angles to valid range
 def constrain_angle(angle, min_angle, max_angle):
     return max(min_angle, min(max_angle, angle))
-
-
 
 # Function to fetch and decode the ESP32-CAM stream
 def fetch_esp32_cam_frame(url):
@@ -47,32 +43,27 @@ def fetch_esp32_cam_frame(url):
         print(f"Error fetching frame: {e}")
     return None
 
-
-
-# Function to send servo angles via TCP
+# Function to send servo angles via COM Port
 def send_servo_angles(pan_angle, tilt_angle, detected):
     try:
-        # Create a TCP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print(f"Connecting to {ESP32_IP}:{ESP32_PORT}...")  # Debug: Print connection attempt
-        sock.connect((ESP32_IP, ESP32_PORT))
-        print("Connection successful!")  # Debug: Confirm connection
+        # Open the serial connection
+        ser = serial.Serial(COM_PORT, BAUD_RATE, timeout=1)
+        time.sleep(2)  # Wait for the connection to establish
 
-        # Send the servo angles (format: "pan_angle,tilt_angle\n")
+        # Send the servo angles (format: "pan_angle,tilt_angle,detected\n")
         data = f"{pan_angle},{tilt_angle},{int(detected)}\n"
         print(f"Sending: {data.strip()}")  # Debug: Print the data being sent
-        sock.send(data.encode())
+        ser.write(data.encode())
 
         # Wait for a response from the ESP32-CAM
-        response = sock.recv(1024).decode().strip()
+        response = ser.readline().decode().strip()
         print(f"Response: {response}")  # Debug: Print the response
 
-        # Close the socket
-        sock.close()
+        # Close the serial connection
+        ser.close()
     except Exception as e:
         print(f"Error sending servo angles: {e}")
 
-#we
 # Main function for object detection and servo control
 def main():
     global pan_angle, tilt_angle  # Declare pan_angle and tilt_angle as global variables
@@ -93,7 +84,6 @@ def main():
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         # Define HSV range for red color
-        # Red has two ranges in HSV due to the hue wrap-around
         red_lower1 = np.array([0, 50, 50])    # Lower range for red
         red_upper1 = np.array([10, 255, 255]) # Upper range for red
         red_lower2 = np.array([170, 50, 50])  # Lower range for red (wrap-around)
@@ -119,7 +109,6 @@ def main():
         rows, cols, _ = frame.shape
         center_x = int(cols / 2)
         center_y = int(rows / 2)
-        
 
         # Draw a crosshair at the center of the frame (in red)
         cv2.line(frame, (center_x, 0), (center_x, rows), (0, 0, 255), 2)
@@ -166,7 +155,7 @@ def main():
             # Set detection status to true
             detected = True
 
-        # Send servo angles and detection status via T.C.P
+        # Send servo angles and detection status via COM Port
         send_servo_angles(pan_angle, tilt_angle, detected)
 
         # Display the frame and mask
