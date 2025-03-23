@@ -13,6 +13,7 @@ esp32_cam_url = "http://192.168.238.56/capture"  # Replace with the correct URL
 ESP32_IP = "192.168.238.56"  # Replace with your ESP32-CAM IP address
 ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
 
+#
 # Servo control parameters
 pan_angle = 90  # Initial pan angle (X-axis)
 tilt_angle = 50  # Initial tilt angle (Y-axis)
