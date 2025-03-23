@@ -5,22 +5,22 @@ import requests
 import socket
 
 # ESP32-CAM video stream URL
-esp32_cam_url = "http://192.168.3.14/capture"  # Replace with the correct URL
+esp32_cam_url = "http://192.168.238.56/capture"  # Replace with the correct URL
 
 #http://192.168.3.14/   http://192.168.158.56    192.168.218.56  http://192.168.24.56
 
 # TCP Server Configuration for ESP32-CAM -fjl
-ESP32_IP = "192.168.3.14"  # Replace with your ESP32-CAM IP address
+ESP32_IP = "192.168.238.56"  # Replace with your ESP32-CAM IP address
 ESP32_PORT = 82  # Use the same port as in the ESP32-CAM code
 
 # Servo control parameters
 pan_angle = 90  # Initial pan angle (X-axis)
-tilt_angle = 40  # Initial tilt angle (Y-axis)
+tilt_angle = 50  # Initial tilt angle (Y-axis)
 servo_speed = 2  # Speed of servo movement (adjust as needed)
 
 # Define tilt servo limits (adjust these values as needed)
-TILT_MIN_ANGLE = 20  # Minimum angle for tilt (down)
-TILT_MAX_ANGLE = 80  # Maximum angle for tilt(up)
+TILT_MIN_ANGLE = 5  # Minimum angle for tilt (down)
+TILT_MAX_ANGLE = 70  # Maximum angle for tilt(up)
 
 # Function to constrain servo angles to valid range
 def constrain_angle(angle, min_angle, max_angle):
@@ -149,15 +149,15 @@ def main():
 
             # Pan servo (left/right)
             if error_x > 30:  # Object is to the right
-                pan_angle += servo_speed  # Move right
+                pan_angle -= servo_speed  # Move right
             elif error_x < -30:  # Object is to the left
-                pan_angle -= servo_speed  # Move left
+                pan_angle += servo_speed  # Move left
 
             # Tilt servo (up/down
             if error_y > 30:  # Object is below
-                tilt_angle += servo_speed  # Move down
+                tilt_angle -= servo_speed  # Move down
             elif error_y < -30:  # Object is above
-                tilt_angle -= servo_speed  # Move up
+                tilt_angle += servo_speed  # Move up
 
             # Constrain servo angles to valid range
             pan_angle = constrain_angle(pan_angle, 0, 180)  # Pan servo range (0 to 180)
